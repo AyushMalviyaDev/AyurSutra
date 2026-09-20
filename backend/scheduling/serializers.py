@@ -1,11 +1,11 @@
 from datetime import datetime
 
 from rest_framework import serializers
-
 from .models import (
     Room,
     RoomAvailability,
     TherapistAvailability,
+    PatientAvailability,
     TherapySession,
 )
 
@@ -194,7 +194,62 @@ class TherapistAvailabilitySerializer(serializers.ModelSerializer):
 
         return data
 
+class PatientAvailabilitySerializer(serializers.ModelSerializer):
 
+    patient_name = serializers.CharField(
+        source="patient.username",
+        read_only=True
+    )
+
+    class Meta:
+        model = PatientAvailability
+
+        fields = [
+            "id",
+            "patient",
+            "patient_name",
+            "day_of_week",
+            "start_time",
+            "end_time",
+            "is_available",
+        ]
+
+        read_only_fields = [
+            "id",
+            "patient_name",
+        ]
+
+    def validate(self, data):
+
+        patient = data.get(
+            "patient",
+            getattr(self.instance, "patient", None)
+        )
+
+        start_time = data.get(
+            "start_time",
+            getattr(self.instance, "start_time", None)
+        )
+
+        end_time = data.get(
+            "end_time",
+            getattr(self.instance, "end_time", None)
+        )
+
+        # Patient role validation
+        if patient and patient.role != "PATIENT":
+            raise serializers.ValidationError({
+                "patient": "Selected user is not a patient."
+            })
+
+        # Time validation
+        if start_time and end_time and start_time >= end_time:
+            raise serializers.ValidationError({
+                "end_time": "End time must be after start time."
+            })
+
+        return data
+    
 # ============================================================
 # THERAPY SESSION SERIALIZER
 # ============================================================
@@ -549,7 +604,24 @@ class TherapySessionSerializer(serializers.ModelSerializer):
                         "This therapist is not available "
                         "during the selected time."
                 })
+        # ------------------------------------------------------------
+        # PATIENT AVAILABILITY
+        # ------------------------------------------------------------
 
+        day_of_week = session_date.weekday()
+
+        patient_is_available = PatientAvailability.objects.filter(
+            patient=patient,
+            day_of_week=day_of_week,
+            start_time__lte=start_time,
+            end_time__gte=end_time,
+            is_available=True,
+        ).exists()
+
+        if not patient_is_available:
+            raise serializers.ValidationError({
+                "patient": "This patient is not available during the selected time."
+            })
         # ====================================================
         # 8. SKIP CONFLICT CHECK FOR CANCELLED / NO-SHOW
         # ====================================================

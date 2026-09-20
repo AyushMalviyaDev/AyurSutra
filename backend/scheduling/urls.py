@@ -2,14 +2,21 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
-    RoomAvailabilityViewSet,
     RoomViewSet,
     TherapistAvailabilityViewSet,
+    RoomAvailabilityViewSet,
+    PatientAvailabilityViewSet,
     TherapySessionViewSet,
 )
 
 
 router = DefaultRouter()
+
+router.register(
+    "patient-availability",
+    PatientAvailabilityViewSet,
+    basename="patient-availability"
+)
 
 router.register(
     "room-availability",

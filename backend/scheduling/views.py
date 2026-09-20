@@ -5,6 +5,7 @@ from .models import (
     Room,
     RoomAvailability,
     TherapistAvailability,
+    PatientAvailability,
     TherapySession,
 )
 
@@ -12,14 +13,45 @@ from .serializers import (
     RoomSerializer,
     RoomAvailabilitySerializer,
     TherapistAvailabilitySerializer,
+    PatientAvailabilitySerializer,
     TherapySessionSerializer,
 )
-
 
 # ============================================================
 # ROOM
 # ============================================================
 
+class PatientAvailabilityViewSet(viewsets.ModelViewSet):
+
+    serializer_class = PatientAvailabilitySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+
+        user = self.request.user
+
+        # Patient → only their own availability
+        if user.role == "PATIENT":
+
+            return PatientAvailability.objects.filter(
+                patient=user
+            )
+
+        # Admin → all patient availability
+        if user.role == "ADMIN":
+
+            return PatientAvailability.objects.all()
+
+        # Vaidya → all patient availability
+        if user.role == "VAIDYA":
+
+            return PatientAvailability.objects.filter(
+                patient__role="PATIENT"
+            )
+
+        return PatientAvailability.objects.none()
+
+    
 class RoomViewSet(viewsets.ModelViewSet):
 
     queryset = Room.objects.filter(
