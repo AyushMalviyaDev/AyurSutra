@@ -8,9 +8,17 @@ from .views import (
     PatientAvailabilityViewSet,
     TherapySessionViewSet,
     FindAvailableSlotsView,
+    BookSessionView,
 )
 
 router = DefaultRouter()
+
+
+path(
+    "book-session/",
+    BookSessionView.as_view(),
+    name="book-session",
+),
 
 path(
     "find-slots/",

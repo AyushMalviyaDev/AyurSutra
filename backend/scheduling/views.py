@@ -388,4 +388,212 @@ class FindAvailableSlotsView(APIView):
             },
             status=status.HTTP_200_OK,
         )
-    
+
+class BookSessionView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        patient_therapy_id = request.data.get("patient_therapy")
+        therapist_id = request.data.get("therapist")
+        room_id = request.data.get("room")
+        session_date = request.data.get("session_date")
+        start_time = request.data.get("start_time")
+        session_number = request.data.get("session_number")
+
+        # --------------------------------------------------
+        # Required fields
+        # --------------------------------------------------
+
+        required_fields = {
+            "patient_therapy": patient_therapy_id,
+            "therapist": therapist_id,
+            "room": room_id,
+            "session_date": session_date,
+            "start_time": start_time,
+            "session_number": session_number,
+        }
+
+        missing_fields = [
+            field
+            for field, value in required_fields.items()
+            if value in [None, ""]
+        ]
+
+        if missing_fields:
+
+            return Response(
+                {
+                    "detail": (
+                        "Missing required fields: "
+                        + ", ".join(missing_fields)
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # --------------------------------------------------
+        # Get PatientTherapy
+        # --------------------------------------------------
+
+        try:
+
+            patient_therapy = PatientTherapy.objects.select_related(
+                "patient",
+                "therapy",
+            ).get(
+                id=patient_therapy_id
+            )
+
+        except PatientTherapy.DoesNotExist:
+
+            return Response(
+                {
+                    "patient_therapy": (
+                        "Patient therapy does not exist."
+                    )
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # --------------------------------------------------
+        # Get Therapist
+        # --------------------------------------------------
+
+        from accounts.models import User
+
+        try:
+
+            therapist = User.objects.get(
+                id=therapist_id,
+                role=User.Role.THERAPIST,
+            )
+
+        except User.DoesNotExist:
+
+            return Response(
+                {
+                    "therapist": (
+                        "Valid therapist was not found."
+                    )
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # --------------------------------------------------
+        # Get Room
+        # --------------------------------------------------
+
+        try:
+
+            room = Room.objects.get(
+                id=room_id,
+                is_active=True,
+            )
+
+        except Room.DoesNotExist:
+
+            return Response(
+                {
+                    "room": (
+                        "Valid active room was not found."
+                    )
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # --------------------------------------------------
+        # Parse date/time
+        # --------------------------------------------------
+
+        try:
+
+            session_date_obj = datetime.strptime(
+                session_date,
+                "%Y-%m-%d"
+            ).date()
+
+            start_time_obj = datetime.strptime(
+                start_time,
+                "%H:%M:%S"
+            ).time()
+
+        except ValueError:
+
+            return Response(
+                {
+                    "detail": (
+                        "Use session_date as YYYY-MM-DD "
+                        "and start_time as HH:MM:SS."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # --------------------------------------------------
+        # Calculate end time from therapy duration
+        # --------------------------------------------------
+
+        from datetime import timedelta
+
+        start_datetime = datetime.combine(
+            session_date_obj,
+            start_time_obj,
+        )
+
+        end_datetime = (
+            start_datetime
+            + timedelta(
+                minutes=patient_therapy.therapy.duration_minutes
+            )
+        )
+
+        end_time_obj = end_datetime.time()
+
+        # --------------------------------------------------
+        # Build session data
+        # --------------------------------------------------
+
+        session_data = {
+            "patient_therapy": patient_therapy.id,
+            "patient": patient_therapy.patient.id,
+            "therapist": therapist.id,
+            "room": room.id,
+            "session_date": session_date_obj,
+            "start_time": start_time_obj,
+            "end_time": end_time_obj,
+            "session_number": session_number,
+            "status": TherapySession.Status.SCHEDULED,
+        }
+
+        # --------------------------------------------------
+        # Validate through TherapySessionSerializer
+        # --------------------------------------------------
+
+        serializer = TherapySessionSerializer(
+            data=session_data
+        )
+
+        if not serializer.is_valid():
+
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # --------------------------------------------------
+        # Create session
+        # --------------------------------------------------
+
+        session = serializer.save()
+
+        return Response(
+            {
+                "message": "Therapy session booked successfully.",
+                "session": TherapySessionSerializer(
+                    session
+                ).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
