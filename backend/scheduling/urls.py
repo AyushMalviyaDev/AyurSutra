@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (
     RoomViewSet,
+    TherapistAvailabilityViewSet,
     TherapySessionViewSet,
 )
 
@@ -16,11 +17,16 @@ router.register(
 )
 
 router.register(
+    "availability",
+    TherapistAvailabilityViewSet,
+    basename="therapist-availability"
+)
+
+router.register(
     "sessions",
     TherapySessionViewSet,
     basename="session"
 )
-
 
 urlpatterns = [
     path("", include(router.urls)),

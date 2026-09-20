@@ -1,12 +1,17 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Room, TherapySession
-from .serializers import (
-    RoomSerializer,
-    TherapySessionSerializer,
+from .models import (
+    Room,
+    TherapistAvailability,
+    TherapySession,
 )
 
+from .serializers import (
+    RoomSerializer,
+    TherapistAvailabilitySerializer,
+    TherapySessionSerializer,
+)
 
 class RoomViewSet(viewsets.ModelViewSet):
 
@@ -43,3 +48,27 @@ class TherapySessionViewSet(viewsets.ModelViewSet):
             )
 
         return TherapySession.objects.all()
+
+class TherapistAvailabilityViewSet(viewsets.ModelViewSet):
+
+    serializer_class = TherapistAvailabilitySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+
+        user = self.request.user
+
+        if user.role == "THERAPIST":
+            return TherapistAvailability.objects.filter(
+                therapist=user
+            )
+
+        if user.role == "ADMIN":
+            return TherapistAvailability.objects.all()
+
+        if user.role == "VAIDYA":
+            return TherapistAvailability.objects.filter(
+                therapist__role="THERAPIST"
+            )
+
+        return TherapistAvailability.objects.none()
