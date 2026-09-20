@@ -14,4 +14,9 @@ urlpatterns = [
         "api/patients/",
         include("patients.urls")
     ),
+    path(
+    "api/therapies/",
+    include("therapies.urls")
+),
+
 ]
