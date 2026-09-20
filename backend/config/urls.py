@@ -18,5 +18,8 @@ urlpatterns = [
     "api/therapies/",
     include("therapies.urls")
 ),
-
+path(
+    "api/scheduling/",
+    include("scheduling.urls")
+),
 ]
