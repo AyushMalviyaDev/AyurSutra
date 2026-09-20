@@ -8,15 +8,19 @@ export const AuthProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const login = (userData, token = "demo-token") => {
-    localStorage.setItem("token", token);
+  const login = (userData, accessToken, refreshToken) => {
+    localStorage.setItem("token", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
     localStorage.setItem("user", JSON.stringify(userData));
+
     setUser(userData);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
+
     setUser(null);
   };
 

@@ -1,131 +1,125 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
 
-const demoUsers = {
-  patient: {
-    id: 1,
-    name: "Rahul Sharma",
-    email: "patient@ayursutra.com",
-    role: "PATIENT",
-  },
-
-  vaidya: {
-    id: 2,
-    name: "Dr. Anjali Sharma",
-    email: "vaidya@ayursutra.com",
-    role: "VAIDYA",
-  },
-
-  therapist: {
-    id: 3,
-    name: "Rajesh Kumar",
-    email: "therapist@ayursutra.com",
-    role: "THERAPIST",
-  },
-
-  admin: {
-    id: 4,
-    name: "AyurSutra Admin",
-    email: "admin@ayursutra.com",
-    role: "ADMIN",
-  },
-};
+import { loginUser } from "../services/authService";
+import { useAuthContext } from "../context/AuthContext";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const { login } = useAuth();
   const navigate = useNavigate();
+  const { login } = useAuthContext();
 
-  const handleSubmit = (e) => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const user = Object.values(demoUsers).find(
-      (user) => user.email === email
-    );
+    setError("");
+    setLoading(true);
 
-    if (!user || password !== "123456") {
-      alert("Demo login failed. Use one of the demo emails and password: 123456");
-      return;
-    }
+    try {
+      const data = await loginUser(formData);
 
-    login(user);
+      login(
+        data.user,
+        data.access,
+        data.refresh
+      );
 
-    switch (user.role) {
-      case "PATIENT":
-        navigate("/patient");
-        break;
+      switch (data.user.role) {
+        case "PATIENT":
+          navigate("/patient");
+          break;
 
-      case "VAIDYA":
-        navigate("/vaidya");
-        break;
+        case "VAIDYA":
+          navigate("/vaidya");
+          break;
 
-      case "THERAPIST":
-        navigate("/therapist");
-        break;
+        case "THERAPIST":
+          navigate("/therapist");
+          break;
 
-      case "ADMIN":
-        navigate("/admin");
-        break;
+        case "ADMIN":
+          navigate("/admin");
+          break;
 
-      default:
-        navigate("/");
+        default:
+          navigate("/");
+      }
+
+    } catch (error) {
+      if (error.response?.data) {
+        const responseData = error.response.data;
+
+        if (responseData.non_field_errors) {
+          setError(responseData.non_field_errors[0]);
+        } else if (responseData.detail) {
+          setError(responseData.detail);
+        } else {
+          setError("Invalid email or password.");
+        }
+      } else {
+        setError("Unable to connect to server.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="login-page">
-      <div className="login-card">
-        <div className="login-logo">
-          <div className="logo-icon">A</div>
-          <h1>AyurSutra</h1>
-        </div>
 
-        <p className="login-subtitle">
-          Panchakarma Patient Management System
-        </p>
+      <form onSubmit={handleSubmit}>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+        <h1>AyurSutra</h1>
+
+        <p>Sign in to your account</p>
+
+        {error && (
+          <div className="error-message">
+            {error}
           </div>
+        )}
 
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
 
-          <button type="submit" className="login-button">
-            Sign In
-          </button>
-        </form>
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
 
-        <div className="demo-login">
-          <p>Demo password: <strong>123456</strong></p>
+        <button
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? "Signing in..." : "Sign In"}
+        </button>
 
-          <div className="demo-users">
-            <small>Patient: patient@ayursutra.com</small>
-            <small>Vaidya: vaidya@ayursutra.com</small>
-            <small>Therapist: therapist@ayursutra.com</small>
-            <small>Admin: admin@ayursutra.com</small>
-          </div>
-        </div>
-      </div>
+      </form>
+
     </div>
   );
 };
