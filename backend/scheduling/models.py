@@ -66,7 +66,58 @@ class RoomAvailability(models.Model):
             f"{self.get_day_of_week_display()} "
             f"{self.start_time} - {self.end_time}"
         )
-        
+
+class PatientAvailability(models.Model):
+
+    class DayOfWeek(models.IntegerChoices):
+        MONDAY = 0, "Monday"
+        TUESDAY = 1, "Tuesday"
+        WEDNESDAY = 2, "Wednesday"
+        THURSDAY = 3, "Thursday"
+        FRIDAY = 4, "Friday"
+        SATURDAY = 5, "Saturday"
+        SUNDAY = 6, "Sunday"
+
+    patient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="patient_availability"
+    )
+
+    day_of_week = models.IntegerField(
+        choices=DayOfWeek.choices
+    )
+
+    start_time = models.TimeField()
+
+    end_time = models.TimeField()
+
+    is_available = models.BooleanField(
+        default=True
+    )
+
+    class Meta:
+        ordering = ["day_of_week", "start_time"]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "patient",
+                    "day_of_week",
+                    "start_time",
+                    "end_time",
+                ],
+                name="unique_patient_availability"
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.patient.username} - "
+            f"{self.get_day_of_week_display()} "
+            f"{self.start_time} - {self.end_time}"
+        )
+    
 
 class TherapistAvailability(models.Model):
 
