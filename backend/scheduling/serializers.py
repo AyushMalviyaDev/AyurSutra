@@ -1,14 +1,13 @@
-
 from datetime import datetime
 
 from rest_framework import serializers
 
 from .models import (
     Room,
+    RoomAvailability,
     TherapistAvailability,
     TherapySession,
 )
-
 
 # ============================================================
 # ROOM SERIALIZER
@@ -30,7 +29,85 @@ class RoomSerializer(serializers.ModelSerializer):
             "id",
         ]
 
+class RoomAvailabilitySerializer(serializers.ModelSerializer):
 
+    room_name = serializers.CharField(
+        source="room.name",
+        read_only=True
+    )
+
+    room_number = serializers.CharField(
+        source="room.room_number",
+        read_only=True
+    )
+
+    class Meta:
+        model = RoomAvailability
+
+        fields = [
+            "id",
+            "room",
+            "room_name",
+            "room_number",
+            "day_of_week",
+            "start_time",
+            "end_time",
+            "is_available",
+        ]
+
+        read_only_fields = [
+            "id",
+            "room_name",
+            "room_number",
+        ]
+
+    def validate(self, data):
+
+        room = data.get(
+            "room",
+            getattr(
+                self.instance,
+                "room",
+                None
+            )
+        )
+
+        start_time = data.get(
+            "start_time",
+            getattr(
+                self.instance,
+                "start_time",
+                None
+            )
+        )
+
+        end_time = data.get(
+            "end_time",
+            getattr(
+                self.instance,
+                "end_time",
+                None
+            )
+        )
+
+        if room and not room.is_active:
+
+            raise serializers.ValidationError({
+                "room":
+                    "This room is currently inactive."
+            })
+
+        if start_time and end_time:
+
+            if start_time >= end_time:
+
+                raise serializers.ValidationError({
+                    "end_time":
+                        "End time must be after start time."
+                })
+
+        return data
+    
 # ============================================================
 # THERAPIST AVAILABILITY SERIALIZER
 # ============================================================
@@ -313,6 +390,37 @@ class TherapySessionSerializer(serializers.ModelSerializer):
                         "Selected user is not a therapist."
                 })
 
+        # --------------------------------
+        # Room availability
+        # --------------------------------
+
+        if (
+            room
+            and session_date
+            and start_time
+            and end_time
+        ):
+
+            day_of_week = session_date.weekday()
+
+            room_is_available = (
+                RoomAvailability.objects.filter(
+                    room=room,
+                    day_of_week=day_of_week,
+                    start_time__lte=start_time,
+                    end_time__gte=end_time,
+                    is_available=True,
+                ).exists()
+            )
+
+            if not room_is_available:
+
+                raise serializers.ValidationError({
+                    "room":
+                        "This room is not available "
+                        "during the selected time."
+                })
+    
         # ====================================================
         # 4. PATIENT THERAPY VALIDATION
         # ====================================================

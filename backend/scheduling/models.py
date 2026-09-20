@@ -13,6 +13,61 @@ class Room(models.Model):
     def __str__(self):
         return f"{self.name} ({self.room_number})"
 
+class RoomAvailability(models.Model):
+
+    class DayOfWeek(models.IntegerChoices):
+        MONDAY = 0, "Monday"
+        TUESDAY = 1, "Tuesday"
+        WEDNESDAY = 2, "Wednesday"
+        THURSDAY = 3, "Thursday"
+        FRIDAY = 4, "Friday"
+        SATURDAY = 5, "Saturday"
+        SUNDAY = 6, "Sunday"
+
+    room = models.ForeignKey(
+        Room,
+        on_delete=models.CASCADE,
+        related_name="availability"
+    )
+
+    day_of_week = models.IntegerField(
+        choices=DayOfWeek.choices
+    )
+
+    start_time = models.TimeField()
+
+    end_time = models.TimeField()
+
+    is_available = models.BooleanField(
+        default=True
+    )
+
+    class Meta:
+        ordering = [
+            "day_of_week",
+            "start_time"
+        ]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "room",
+                    "day_of_week",
+                    "start_time",
+                    "end_time"
+                ],
+                name="unique_room_availability"
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.room.room_number} - "
+            f"{self.get_day_of_week_display()} "
+            f"{self.start_time} - {self.end_time}"
+        )
+        
+
 class TherapistAvailability(models.Model):
 
     class DayOfWeek(models.IntegerChoices):

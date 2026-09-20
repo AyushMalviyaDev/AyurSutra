@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
+    RoomAvailabilityViewSet,
     RoomViewSet,
     TherapistAvailabilityViewSet,
     TherapySessionViewSet,
@@ -9,6 +10,12 @@ from .views import (
 
 
 router = DefaultRouter()
+
+router.register(
+    "room-availability",
+    RoomAvailabilityViewSet,
+    basename="room-availability"
+)
 
 router.register(
     "rooms",
