@@ -7,10 +7,16 @@ from .views import (
     RoomAvailabilityViewSet,
     PatientAvailabilityViewSet,
     TherapySessionViewSet,
+    FindAvailableSlotsView,
 )
 
-
 router = DefaultRouter()
+
+path(
+    "find-slots/",
+    FindAvailableSlotsView.as_view(),
+    name="find-available-slots",
+),
 
 router.register(
     "patient-availability",
