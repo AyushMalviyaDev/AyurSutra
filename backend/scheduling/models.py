@@ -248,3 +248,55 @@ class TherapySession(models.Model):
             f"{self.patient.username} - "
             f"Session {self.session_number}"
         )
+
+class TherapyProgress(models.Model):
+
+    session = models.OneToOneField(
+        TherapySession,
+        on_delete=models.CASCADE,
+        related_name="progress"
+    )
+
+    recorded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="recorded_therapy_progress"
+    )
+
+    patient_response = models.TextField(
+        blank=True
+    )
+
+    therapist_observations = models.TextField(
+        blank=True
+    )
+
+    progress_notes = models.TextField(
+        blank=True
+    )
+
+    discomfort_level = models.PositiveIntegerField(
+        null=True,
+        blank=True
+    )
+
+    completed_successfully = models.BooleanField(
+        default=False
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return (
+            f"Progress - {self.session.patient.username} "
+            f"- Session {self.session.session_number}"
+        )
