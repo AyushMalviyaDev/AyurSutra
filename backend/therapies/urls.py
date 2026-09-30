@@ -6,21 +6,19 @@ from .views import (
     PatientTherapyViewSet,
 )
 
-
 router = DefaultRouter()
 
 router.register(
-    "types",
+    "therapies",
     TherapyViewSet,
     basename="therapy"
 )
 
 router.register(
-    "patient",
+    "patient-therapies",
     PatientTherapyViewSet,
     basename="patient-therapy"
 )
-
 
 urlpatterns = [
     path("", include(router.urls)),

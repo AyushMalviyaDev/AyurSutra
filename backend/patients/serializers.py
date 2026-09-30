@@ -13,13 +13,15 @@ from .models import (
 )
 
 from rest_framework import serializers
-
+from .models import Therapy, PatientTherapy
 from .models import (
     PatientProfile,
     MedicalRecord,
     PatientAssessment,
     Consultation,
 )
+
+
 class ConsultationSerializer(serializers.ModelSerializer):
     patient_name = serializers.CharField(
         source="patient.username",

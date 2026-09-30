@@ -210,3 +210,4 @@ class Consultation(models.Model):
             f"{self.patient.username} - "
             f"Consultation {self.id}"
         )
+
