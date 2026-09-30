@@ -21,6 +21,8 @@ router.register(
     basename="patient-assessment"
 )
 
+
+
 urlpatterns = [
     path("", include(router.urls)),
     path(

@@ -157,4 +157,26 @@ class PatientAssessmentViewSet(viewsets.ModelViewSet):
             return PatientAssessment.objects.all()
 
         return PatientAssessment.objects.none()
+
+class PatientAssessmentViewSet(viewsets.ModelViewSet):
+    serializer_class = PatientAssessmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.role == "PATIENT":
+            return PatientAssessment.objects.filter(
+                patient=user
+            )
+
+        if user.role == "VAIDYA":
+            return PatientAssessment.objects.filter(
+                assessed_by=user
+            )
+
+        if user.role == "ADMIN":
+            return PatientAssessment.objects.all()
+
+        return PatientAssessment.objects.none()
     
