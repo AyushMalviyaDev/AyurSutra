@@ -9,6 +9,9 @@ from therapies.models import PatientTherapy
 from .services.scheduler import find_available_slots
 from rest_framework.views import APIView
 
+from django.db import transaction
+
+
 
 from .models import (
     Room,
