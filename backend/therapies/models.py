@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -35,8 +36,6 @@ class Therapy(models.Model):
 
     def __str__(self):
         return self.name
-
-from django.conf import settings
 
 
 class PatientTherapy(models.Model):
@@ -101,45 +100,4 @@ class PatientTherapy(models.Model):
     def __str__(self):
         return f"{self.patient} - {self.therapy.name}"
 
-
-class PatientTherapy(models.Model):
-    class Status(models.TextChoices):
-        PLANNED = "PLANNED", "Planned"
-        SCHEDULED = "SCHEDULED", "Scheduled"
-        IN_PROGRESS = "IN_PROGRESS", "In Progress"
-        COMPLETED = "COMPLETED", "Completed"
-        CANCELLED = "CANCELLED", "Cancelled"
-
-    patient = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="therapies"
-    )
-
-    therapy = models.ForeignKey(
-        Therapy,
-        on_delete=models.PROTECT,
-        related_name="patient_therapies"
-    )
-
-    prescribed_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name="prescribed_therapies"
-    )
-
-    sessions = models.PositiveIntegerField(default=1)
-
-    status = models.CharField(
-        max_length=20,
-        choices=Status.choices,
-        default=Status.PLANNED
-    )
-
-    physician_notes = models.TextField(blank=True)
-
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    

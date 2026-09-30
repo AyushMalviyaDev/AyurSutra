@@ -1,10 +1,5 @@
 from rest_framework import serializers
-from .models import (
-    PatientProfile,
-    MedicalRecord,
-    PatientAssessment,
-)
-from .models import PatientProfile
+
 from .models import (
     PatientProfile,
     MedicalRecord,
@@ -12,141 +7,6 @@ from .models import (
     Consultation,
 )
 
-from rest_framework import serializers
-from .models import Therapy, PatientTherapy
-from .models import (
-    PatientProfile,
-    MedicalRecord,
-    PatientAssessment,
-    Consultation,
-)
-
-
-class ConsultationSerializer(serializers.ModelSerializer):
-    patient_name = serializers.CharField(
-        source="patient.username",
-        read_only=True
-    )
-
-    vaidya_name = serializers.CharField(
-        source="vaidya.username",
-        read_only=True
-    )
-
-    class Meta:
-        model = Consultation
-        fields = [
-            "id",
-            "patient",
-            "patient_name",
-            "vaidya",
-            "vaidya_name",
-            "consultation_date",
-            "chief_complaint",
-            "clinical_findings",
-            "diagnosis",
-            "treatment_advice",
-            "physician_notes",
-            "follow_up_date",
-            "created_at",
-            "updated_at",
-        ]
-
-        read_only_fields = [
-            "id",
-            "patient_name",
-            "vaidya_name",
-            "consultation_date",
-            "created_at",
-            "updated_at",
-        ]
-
-    def validate(self, data):
-        patient = data.get(
-            "patient",
-            getattr(self.instance, "patient", None)
-        )
-
-        vaidya = data.get(
-            "vaidya",
-            getattr(self.instance, "vaidya", None)
-        )
-
-        if patient and patient.role != "PATIENT":
-            raise serializers.ValidationError({
-                "patient": "Selected user is not a patient."
-            })
-
-        if vaidya and vaidya.role != "VAIDYA":
-            raise serializers.ValidationError({
-                "vaidya": "Consultation can only be conducted by a Vaidya."
-            })
-
-        return data
-
-    
-class PatientAssessmentSerializer(serializers.ModelSerializer):
-    patient_name = serializers.CharField(
-        source="patient.username",
-        read_only=True
-    )
-
-    assessed_by_name = serializers.CharField(
-        source="assessed_by.username",
-        read_only=True
-    )
-
-    class Meta:
-        model = PatientAssessment
-
-        fields = [
-            "id",
-            "patient",
-            "patient_name",
-            "assessed_by",
-            "assessed_by_name",
-            "prakriti",
-            "vikriti",
-            "weight_kg",
-            "blood_pressure",
-            "pulse_rate",
-            "symptoms",
-            "clinical_observations",
-            "assessment_notes",
-            "assessed_at",
-            "updated_at",
-        ]
-
-        read_only_fields = [
-            "id",
-            "patient_name",
-            "assessed_by_name",
-            "assessed_at",
-            "updated_at",
-        ]
-
-    def validate(self, data):
-        patient = data.get(
-            "patient",
-            getattr(self.instance, "patient", None)
-        )
-
-        assessed_by = data.get(
-            "assessed_by",
-            getattr(self.instance, "assessed_by", None)
-        )
-
-        if patient and patient.role != "PATIENT":
-            raise serializers.ValidationError({
-                "patient": "Selected user is not a patient."
-            })
-
-        if assessed_by and assessed_by.role != "VAIDYA":
-            raise serializers.ValidationError({
-                "assessed_by": "Assessment can only be performed by a Vaidya."
-            })
-
-        return data
 
 class PatientProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
@@ -161,8 +21,10 @@ class PatientProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PatientProfile
+
         fields = [
             "id",
+            "user",
             "username",
             "email",
             "date_of_birth",
@@ -181,6 +43,7 @@ class PatientProfileSerializer(serializers.ModelSerializer):
 
         read_only_fields = [
             "id",
+            "user",
             "username",
             "email",
             "created_at",
@@ -245,9 +108,138 @@ class MedicalRecordSerializer(serializers.ModelSerializer):
 
         if recorded_by and recorded_by.role != "VAIDYA":
             raise serializers.ValidationError({
-                "recorded_by": "Medical records can only be recorded by a Vaidya."
+                "recorded_by":
+                "Medical records can only be recorded by a Vaidya."
             })
 
         return data
 
-    
+
+class PatientAssessmentSerializer(serializers.ModelSerializer):
+    patient_name = serializers.CharField(
+        source="patient.username",
+        read_only=True
+    )
+
+    assessed_by_name = serializers.CharField(
+        source="assessed_by.username",
+        read_only=True
+    )
+
+    class Meta:
+        model = PatientAssessment
+
+        fields = [
+            "id",
+            "patient",
+            "patient_name",
+            "assessed_by",
+            "assessed_by_name",
+            "prakriti",
+            "vikriti",
+            "weight_kg",
+            "blood_pressure",
+            "pulse_rate",
+            "symptoms",
+            "clinical_observations",
+            "assessment_notes",
+            "assessed_at",
+            "updated_at",
+        ]
+
+        read_only_fields = [
+            "id",
+            "patient_name",
+            "assessed_by_name",
+            "assessed_at",
+            "updated_at",
+        ]
+
+    def validate(self, data):
+        patient = data.get(
+            "patient",
+            getattr(self.instance, "patient", None)
+        )
+
+        assessed_by = data.get(
+            "assessed_by",
+            getattr(self.instance, "assessed_by", None)
+        )
+
+        if patient and patient.role != "PATIENT":
+            raise serializers.ValidationError({
+                "patient": "Selected user is not a patient."
+            })
+
+        if assessed_by and assessed_by.role != "VAIDYA":
+            raise serializers.ValidationError({
+                "assessed_by":
+                "Assessment can only be performed by a Vaidya."
+            })
+
+        return data
+
+
+class ConsultationSerializer(serializers.ModelSerializer):
+    patient_name = serializers.CharField(
+        source="patient.username",
+        read_only=True
+    )
+
+    vaidya_name = serializers.CharField(
+        source="vaidya.username",
+        read_only=True
+    )
+
+    class Meta:
+        model = Consultation
+
+        fields = [
+            "id",
+            "patient",
+            "patient_name",
+            "vaidya",
+            "vaidya_name",
+            "consultation_date",
+            "chief_complaint",
+            "clinical_findings",
+            "diagnosis",
+            "treatment_advice",
+            "physician_notes",
+            "follow_up_date",
+            "created_at",
+            "updated_at",
+        ]
+
+        read_only_fields = [
+            "id",
+            "patient_name",
+            "vaidya_name",
+            "consultation_date",
+            "created_at",
+            "updated_at",
+        ]
+
+    def validate(self, data):
+        patient = data.get(
+            "patient",
+            getattr(self.instance, "patient", None)
+        )
+
+        vaidya = data.get(
+            "vaidya",
+            getattr(self.instance, "vaidya", None)
+        )
+
+        if patient and patient.role != "PATIENT":
+            raise serializers.ValidationError({
+                "patient": "Selected user is not a patient."
+            })
+
+        if vaidya and vaidya.role != "VAIDYA":
+            raise serializers.ValidationError({
+                "vaidya":
+                "Consultation can only be conducted by a Vaidya."
+            })
+
+        return data
