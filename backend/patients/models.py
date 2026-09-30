@@ -167,3 +167,46 @@ class PatientAssessment(models.Model):
 
     def __str__(self):
         return f"{self.patient.username} - Assessment {self.id}"
+
+class Consultation(models.Model):
+    patient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="consultations"
+    )
+
+    vaidya = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="conducted_consultations"
+    )
+
+    consultation_date = models.DateTimeField(auto_now_add=True)
+
+    chief_complaint = models.TextField(blank=True)
+
+    clinical_findings = models.TextField(blank=True)
+
+    diagnosis = models.TextField(blank=True)
+
+    treatment_advice = models.TextField(blank=True)
+
+    physician_notes = models.TextField(blank=True)
+
+    follow_up_date = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-consultation_date"]
+
+    def __str__(self):
+        return (
+            f"{self.patient.username} - "
+            f"Consultation {self.id}"
+        )

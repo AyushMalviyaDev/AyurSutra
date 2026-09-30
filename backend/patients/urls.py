@@ -5,8 +5,8 @@ from .views import (
     MyPatientProfileView,
     MedicalRecordViewSet,
     PatientAssessmentViewSet,
+    ConsultationViewSet,
 )
-
 router = DefaultRouter()
 
 router.register(
@@ -21,6 +21,11 @@ router.register(
     basename="patient-assessment"
 )
 
+router.register(
+    "consultations",
+    ConsultationViewSet,
+    basename="consultation"
+)
 
 
 urlpatterns = [

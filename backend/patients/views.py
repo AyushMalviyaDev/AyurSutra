@@ -40,6 +40,25 @@ from .serializers import (
 from .models import PatientProfile
 from .serializers import PatientProfileSerializer
 
+from rest_framework import status, viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .models import (
+    PatientProfile,
+    MedicalRecord,
+    PatientAssessment,
+    Consultation,
+)
+
+from .serializers import (
+    PatientProfileSerializer,
+    MedicalRecordSerializer,
+    PatientAssessmentSerializer,
+    ConsultationSerializer,
+)
+
 
 class PatientAssessmentViewSet(viewsets.ModelViewSet):
     serializer_class = PatientAssessmentSerializer
@@ -179,4 +198,25 @@ class PatientAssessmentViewSet(viewsets.ModelViewSet):
             return PatientAssessment.objects.all()
 
         return PatientAssessment.objects.none()
-    
+
+class ConsultationViewSet(viewsets.ModelViewSet):
+    serializer_class = ConsultationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.role == "PATIENT":
+            return Consultation.objects.filter(
+                patient=user
+            )
+
+        if user.role == "VAIDYA":
+            return Consultation.objects.filter(
+                vaidya=user
+            )
+
+        if user.role == "ADMIN":
+            return Consultation.objects.all()
+
+        return Consultation.objects.none()

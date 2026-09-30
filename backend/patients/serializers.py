@@ -5,7 +5,84 @@ from .models import (
     PatientAssessment,
 )
 from .models import PatientProfile
+from .models import (
+    PatientProfile,
+    MedicalRecord,
+    PatientAssessment,
+    Consultation,
+)
 
+from rest_framework import serializers
+
+from .models import (
+    PatientProfile,
+    MedicalRecord,
+    PatientAssessment,
+    Consultation,
+)
+class ConsultationSerializer(serializers.ModelSerializer):
+    patient_name = serializers.CharField(
+        source="patient.username",
+        read_only=True
+    )
+
+    vaidya_name = serializers.CharField(
+        source="vaidya.username",
+        read_only=True
+    )
+
+    class Meta:
+        model = Consultation
+        fields = [
+            "id",
+            "patient",
+            "patient_name",
+            "vaidya",
+            "vaidya_name",
+            "consultation_date",
+            "chief_complaint",
+            "clinical_findings",
+            "diagnosis",
+            "treatment_advice",
+            "physician_notes",
+            "follow_up_date",
+            "created_at",
+            "updated_at",
+        ]
+
+        read_only_fields = [
+            "id",
+            "patient_name",
+            "vaidya_name",
+            "consultation_date",
+            "created_at",
+            "updated_at",
+        ]
+
+    def validate(self, data):
+        patient = data.get(
+            "patient",
+            getattr(self.instance, "patient", None)
+        )
+
+        vaidya = data.get(
+            "vaidya",
+            getattr(self.instance, "vaidya", None)
+        )
+
+        if patient and patient.role != "PATIENT":
+            raise serializers.ValidationError({
+                "patient": "Selected user is not a patient."
+            })
+
+        if vaidya and vaidya.role != "VAIDYA":
+            raise serializers.ValidationError({
+                "vaidya": "Consultation can only be conducted by a Vaidya."
+            })
+
+        return data
+
+    
 class PatientAssessmentSerializer(serializers.ModelSerializer):
     patient_name = serializers.CharField(
         source="patient.username",
