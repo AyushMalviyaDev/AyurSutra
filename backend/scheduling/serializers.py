@@ -7,8 +7,8 @@ from .models import (
     TherapistAvailability,
     PatientAvailability,
     TherapySession,
+    TherapyProgress,
 )
-
 # ============================================================
 # ROOM SERIALIZER
 # ============================================================
@@ -737,5 +737,105 @@ class TherapySessionSerializer(serializers.ModelSerializer):
         # ====================================================
         # ALL VALIDATIONS PASSED
         # ====================================================
+
+        return data
+
+# ============================================================
+# THERAPY PROGRESS SERIALIZER
+# ============================================================
+
+class TherapyProgressSerializer(serializers.ModelSerializer):
+
+    recorded_by_name = serializers.CharField(
+        source="recorded_by.username",
+        read_only=True
+    )
+
+    patient_name = serializers.CharField(
+        source="session.patient.username",
+        read_only=True
+    )
+
+    session_number = serializers.IntegerField(
+        source="session.session_number",
+        read_only=True
+    )
+
+    class Meta:
+        model = TherapyProgress
+
+        fields = [
+            "id",
+            "session",
+            "session_number",
+            "patient_name",
+            "recorded_by",
+            "recorded_by_name",
+            "patient_response",
+            "therapist_observations",
+            "progress_notes",
+            "discomfort_level",
+            "completed_successfully",
+            "created_at",
+            "updated_at",
+        ]
+
+        read_only_fields = [
+            "id",
+            "session_number",
+            "patient_name",
+            "recorded_by_name",
+            "created_at",
+            "updated_at",
+        ]
+
+    def validate(self, data):
+
+        recorded_by = data.get(
+            "recorded_by",
+            getattr(
+                self.instance,
+                "recorded_by",
+                None
+            )
+        )
+
+        discomfort_level = data.get(
+            "discomfort_level",
+            getattr(
+                self.instance,
+                "discomfort_level",
+                None
+            )
+        )
+
+        # --------------------------------
+        # Recorded by must be Therapist
+        # or Vaidya
+        # --------------------------------
+
+        if recorded_by and recorded_by.role not in [
+            "THERAPIST",
+            "VAIDYA",
+        ]:
+
+            raise serializers.ValidationError({
+                "recorded_by":
+                    "Progress can only be recorded "
+                    "by a Therapist or Vaidya."
+            })
+
+        # --------------------------------
+        # Discomfort level: 0-10
+        # --------------------------------
+
+        if discomfort_level is not None:
+
+            if not 0 <= discomfort_level <= 10:
+
+                raise serializers.ValidationError({
+                    "discomfort_level":
+                        "Discomfort level must be between 0 and 10."
+                })
 
         return data
