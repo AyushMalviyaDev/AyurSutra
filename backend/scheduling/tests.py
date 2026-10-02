@@ -143,3 +143,21 @@ class TherapySessionAPITests(APITestCase):
         book_session_res = self.client.post("/api/scheduling/book-session/", {})
         # Should not be 404 (will be 400 because required body params are missing)
         self.assertEqual(book_session_res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_therapist_record_progress(self):
+        token = self.get_jwt_token(self.therapist)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+        response = self.client.post(
+            "/api/scheduling/progress/",
+            {
+                "session": self.session1.id,
+                "recorded_by": self.therapist.id,
+                "discomfort_level": 2,
+                "patient_response": "Felt relaxed",
+                "therapist_observations": "Good response to Abhyanga",
+                "progress_notes": "Continue current regimen",
+                "completed_successfully": True,
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["discomfort_level"], 2)

@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from .models import User
 from .serializers import (
     RegisterSerializer,
     LoginSerializer,
@@ -71,3 +72,21 @@ class MeView(APIView):
                 "user": UserSerializer(request.user).data
             }
         )
+
+
+class UsersListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        role = request.query_params.get("role")
+        user = request.user
+        queryset = User.objects.filter(is_active=True)
+
+        if role:
+            queryset = queryset.filter(role=role)
+
+        # Patients should only list practitioners (Therapists / Vaidyas)
+        if user.role == User.Role.PATIENT:
+            queryset = queryset.filter(role__in=[User.Role.THERAPIST, User.Role.VAIDYA])
+
+        return Response(UserSerializer(queryset, many=True).data)

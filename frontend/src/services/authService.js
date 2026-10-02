@@ -14,3 +14,9 @@ export const getCurrentUser = async () => {
   const response = await api.get("/auth/me/");
   return response.data;
 };
+
+export const getUsers = async (role) => {
+  const params = role ? { role } : {};
+  const response = await api.get("/auth/users/", { params });
+  return response.data;
+};

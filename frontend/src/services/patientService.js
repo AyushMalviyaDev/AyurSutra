@@ -14,3 +14,33 @@ export const getMySessions = async () => {
   const response = await api.get("/scheduling/sessions/");
   return response.data;
 };
+
+export const getAssessments = async (params) => {
+  const response = await api.get("/patients/assessments/", { params });
+  return response.data;
+};
+
+export const createAssessment = async (data) => {
+  const response = await api.post("/patients/assessments/", data);
+  return response.data;
+};
+
+export const getConsultations = async (params) => {
+  const response = await api.get("/patients/consultations/", { params });
+  return response.data;
+};
+
+export const createConsultation = async (data) => {
+  const response = await api.post("/patients/consultations/", data);
+  return response.data;
+};
+
+export const getMedicalRecords = async (params) => {
+  const response = await api.get("/patients/medical-records/", { params });
+  return response.data;
+};
+
+export const createMedicalRecord = async (data) => {
+  const response = await api.post("/patients/medical-records/", data);
+  return response.data;
+};
