@@ -15,18 +15,6 @@ from .views import (
 router = DefaultRouter()
 
 
-path(
-    "book-session/",
-    BookSessionView.as_view(),
-    name="book-session",
-),
-
-path(
-    "find-slots/",
-    FindAvailableSlotsView.as_view(),
-    name="find-available-slots",
-),
-
 router.register(
     "patient-availability",
     PatientAvailabilityViewSet,
@@ -60,5 +48,15 @@ router.register(
 )
 
 urlpatterns = [
+    path(
+        "book-session/",
+        BookSessionView.as_view(),
+        name="book-session",
+    ),
+    path(
+        "find-slots/",
+        FindAvailableSlotsView.as_view(),
+        name="find-available-slots",
+    ),
     path("", include(router.urls)),
 ]

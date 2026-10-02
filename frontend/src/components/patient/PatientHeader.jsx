@@ -7,12 +7,12 @@ const PatientHeader = () => {
     <div className="patient-header">
       <div>
         <p className="eyebrow">PATIENT DASHBOARD</p>
-        <h1>Hello, {user?.name}</h1>
+        <h1>Hello, {user?.name || user?.username || "Patient"}</h1>
         <p>Track your Panchakarma healing journey.</p>
       </div>
 
       <div className="patient-avatar">
-        {user?.name?.charAt(0)}
+        {(user?.name || user?.username || "P").charAt(0).toUpperCase()}
       </div>
     </div>
   );

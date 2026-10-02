@@ -215,7 +215,10 @@ class TherapySessionViewSet(viewsets.ModelViewSet):
             )
 
         # Admin → everything
-        return TherapySession.objects.all()
+        if user.role == "ADMIN":
+            return TherapySession.objects.all()
+
+        return TherapySession.objects.none()
 
 class FindAvailableSlotsView(APIView):
 

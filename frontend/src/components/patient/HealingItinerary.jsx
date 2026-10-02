@@ -1,7 +1,6 @@
 import TherapyCard from "./TherapyCard";
-import { therapies } from "../../data/mockData";
 
-const HealingItinerary = () => {
+const HealingItinerary = ({ sessions = [] }) => {
   return (
     <section>
       <div className="section-heading">
@@ -12,12 +11,16 @@ const HealingItinerary = () => {
       </div>
 
       <div className="therapy-list">
-        {therapies.map((therapy) => (
-          <TherapyCard
-            key={therapy.id}
-            therapy={therapy}
-          />
-        ))}
+        {sessions.length === 0 ? (
+          <p>No therapy sessions scheduled.</p>
+        ) : (
+          sessions.map((session) => (
+            <TherapyCard
+              key={session.id}
+              therapy={session}
+            />
+          ))
+        )}
       </div>
     </section>
   );

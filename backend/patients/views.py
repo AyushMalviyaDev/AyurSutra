@@ -1,45 +1,3 @@
-from .models import PatientProfile, MedicalRecord
-from .serializers import (
-    PatientProfileSerializer,
-    MedicalRecordSerializer,
-)
-from rest_framework import viewsets
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from .models import (
-    PatientProfile,
-    MedicalRecord,
-    PatientAssessment,
-)
-
-from .serializers import (
-    PatientProfileSerializer,
-    MedicalRecordSerializer,
-    PatientAssessmentSerializer,
-)
-from .models import (
-    PatientProfile,
-    MedicalRecord,
-    PatientAssessment,
-)
-
-from .serializers import (
-    PatientProfileSerializer,
-    MedicalRecordSerializer,
-    PatientAssessmentSerializer,
-)
-
-from .models import PatientProfile
-from .serializers import PatientProfileSerializer
-
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -51,7 +9,6 @@ from .models import (
     PatientAssessment,
     Consultation,
 )
-
 from .serializers import (
     PatientProfileSerializer,
     MedicalRecordSerializer,
@@ -155,49 +112,6 @@ class MyPatientProfileView(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-class PatientAssessmentViewSet(viewsets.ModelViewSet):
-    serializer_class = PatientAssessmentSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-
-        if user.role == "PATIENT":
-            return PatientAssessment.objects.filter(
-                patient=user
-            )
-
-        if user.role == "VAIDYA":
-            return PatientAssessment.objects.filter(
-                assessed_by=user
-            )
-
-        if user.role == "ADMIN":
-            return PatientAssessment.objects.all()
-
-        return PatientAssessment.objects.none()
-
-class PatientAssessmentViewSet(viewsets.ModelViewSet):
-    serializer_class = PatientAssessmentSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-
-        if user.role == "PATIENT":
-            return PatientAssessment.objects.filter(
-                patient=user
-            )
-
-        if user.role == "VAIDYA":
-            return PatientAssessment.objects.filter(
-                assessed_by=user
-            )
-
-        if user.role == "ADMIN":
-            return PatientAssessment.objects.all()
-
-        return PatientAssessment.objects.none()
 
 class ConsultationViewSet(viewsets.ModelViewSet):
     serializer_class = ConsultationSerializer
