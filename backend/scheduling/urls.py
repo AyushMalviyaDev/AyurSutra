@@ -6,6 +6,7 @@ from .views import (
     TherapistAvailabilityViewSet,
     RoomAvailabilityViewSet,
     PatientAvailabilityViewSet,
+    TherapyProgressViewSet,
     TherapySessionViewSet,
     FindAvailableSlotsView,
     BookSessionView,
@@ -43,6 +44,8 @@ router.register(
     RoomViewSet,
     basename="room"
 )
+
+router.register("progress", TherapyProgressViewSet, basename="therapy-progress")
 
 router.register(
     "availability",

@@ -19,6 +19,7 @@ from .models import (
     TherapistAvailability,
     PatientAvailability,
     TherapySession,
+    TherapyProgress,
 )
 
 from .serializers import (
@@ -27,8 +28,45 @@ from .serializers import (
     TherapistAvailabilitySerializer,
     PatientAvailabilitySerializer,
     TherapySessionSerializer,
+    TherapyProgressSerializer,
 )
+# ============================================================
+# THERAPY PROGRESS
+# ============================================================
 
+class TherapyProgressViewSet(viewsets.ModelViewSet):
+
+    serializer_class = TherapyProgressSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+
+        user = self.request.user
+
+        # Patient → only progress of their own sessions
+        if user.role == "PATIENT":
+            return TherapyProgress.objects.filter(
+                session__patient=user
+            )
+
+        # Therapist → progress recorded by them
+        if user.role == "THERAPIST":
+            return TherapyProgress.objects.filter(
+                recorded_by=user
+            )
+
+        # Vaidya → progress recorded by them
+        if user.role == "VAIDYA":
+            return TherapyProgress.objects.filter(
+                recorded_by=user
+            )
+
+        # Admin → all progress
+        if user.role == "ADMIN":
+            return TherapyProgress.objects.all()
+
+        return TherapyProgress.objects.none()
+    
 # ============================================================
 # ROOM
 # ============================================================
