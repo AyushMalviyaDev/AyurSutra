@@ -50,6 +50,7 @@ class PatientTherapySerializer(serializers.ModelSerializer):
             "prescribed_by",
             "vaidya_name",
             "sessions",
+            "phase",
             "status",
             "physician_notes",
             "start_date",

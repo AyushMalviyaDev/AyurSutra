@@ -40,12 +40,23 @@ class Therapy(models.Model):
 
 class PatientTherapy(models.Model):
 
+    class Phase(models.TextChoices):
+        PURVAKARMA = "PURVAKARMA", "Purvakarma (Preparatory)"
+        PRADHANAKARMA = "PRADHANAKARMA", "Pradhanakarma (Elimination)"
+        PASCHATKARMA = "PASCHATKARMA", "Paschatkarma (Restorative)"
+
     class Status(models.TextChoices):
         PLANNED = "PLANNED", "Planned"
         SCHEDULED = "SCHEDULED", "Scheduled"
         IN_PROGRESS = "IN_PROGRESS", "In Progress"
         COMPLETED = "COMPLETED", "Completed"
         CANCELLED = "CANCELLED", "Cancelled"
+
+    phase = models.CharField(
+        max_length=30,
+        choices=Phase.choices,
+        default=Phase.PRADHANAKARMA
+    )
 
     patient = models.ForeignKey(
         settings.AUTH_USER_MODEL,

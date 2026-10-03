@@ -21,6 +21,7 @@ import TherapistDashboard from "../pages/therapist/TherapistDashboard";
 import TherapistSchedule from "../pages/therapist/TherapistSchedule";
 import TherapistSessions from "../pages/therapist/TherapistSessions";
 import TherapistProgress from "../pages/therapist/TherapistProgress";
+import TherapistSuiteMode from "../pages/therapist/TherapistSuiteMode";
 
 // Admin Pages
 import AdminDashboard from "../pages/admin/AdminDashboard";
@@ -170,6 +171,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["THERAPIST"]}>
             <TherapistProgress />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/therapist/suite"
+        element={
+          <ProtectedRoute allowedRoles={["THERAPIST"]}>
+            <TherapistSuiteMode />
           </ProtectedRoute>
         }
       />

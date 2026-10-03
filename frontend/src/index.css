@@ -1126,3 +1126,56 @@ button, input, select, textarea {
     margin: 0 auto;
   }
 }
+
+/* ==========================================================================
+   PRINT MEDIA STYLES FOR AYURVEDIC EHR PDF EXPORT
+   ========================================================================== */
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+  }
+
+  .sidebar,
+  .navbar,
+  .no-print {
+    display: none !important;
+  }
+
+  .modal-overlay {
+    position: static !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+  }
+
+  .modal-dialog {
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    color: #111827 !important;
+  }
+
+  #printable-ehr-document {
+    color: #111827 !important;
+  }
+
+  #printable-ehr-document * {
+    color: #111827 !important;
+    text-shadow: none !important;
+  }
+
+  #printable-ehr-document strong {
+    color: #000000 !important;
+  }
+
+  #printable-ehr-document div,
+  #printable-ehr-document span,
+  #printable-ehr-document h4 {
+    border-color: #cbd5e1 !important;
+  }
+}

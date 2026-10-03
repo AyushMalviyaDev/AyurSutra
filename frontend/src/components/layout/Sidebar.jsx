@@ -44,6 +44,7 @@ const Sidebar = () => {
         return [
           { label: "Dashboard", path: "/therapist", icon: LayoutDashboard },
           { label: "Today's Schedule", path: "/therapist/schedule", icon: CalendarCheck },
+          { label: "Suite Console", path: "/therapist/suite", icon: DoorOpen },
           { label: "Sessions", path: "/therapist/sessions", icon: Clock },
           { label: "Progress Logs", path: "/therapist/progress", icon: Activity },
         ];

@@ -7,8 +7,10 @@ import {
   X,
   FileText,
   User,
+  Map,
 } from "lucide-react";
 import DashboardLayout from "../../components/layout/DashboardLayout";
+import MarmaBodyMap from "../../components/clinical/MarmaBodyMap";
 import useAuth from "../../hooks/useAuth";
 import { getTherapies, getPatientTherapies, prescribeTherapy } from "../../services/therapyService";
 import { getUsers } from "../../services/authService";
@@ -19,11 +21,13 @@ const VaidyaTreatments = () => {
   const [patients, setPatients] = useState([]);
   const [therapies, setTherapies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showMarmaMap, setShowMarmaMap] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     patient: "",
     therapy: "",
+    phase: "PRADHANAKARMA",
     sessions: 5,
     physician_notes: "",
     start_date: new Date().toISOString().split("T")[0],
@@ -76,6 +80,7 @@ const VaidyaTreatments = () => {
       await prescribeTherapy({
         patient: Number(formData.patient),
         therapy: Number(formData.therapy),
+        phase: formData.phase,
         prescribed_by: user.id,
         sessions: Number(formData.sessions),
         physician_notes: formData.physician_notes,
@@ -88,6 +93,7 @@ const VaidyaTreatments = () => {
       setFormData({
         patient: patients.length > 0 ? String(patients[0].id) : "",
         therapy: therapies.length > 0 ? String(therapies[0].id) : "",
+        phase: "PRADHANAKARMA",
         sessions: 5,
         physician_notes: "",
         start_date: new Date().toISOString().split("T")[0],
@@ -127,11 +133,25 @@ const VaidyaTreatments = () => {
           <p>Prescribe classical detoxification and rejuvenation protocols customized for each patient.</p>
         </div>
 
-        <button onClick={() => setShowModal(true)} className="btn btn-primary">
-          <Plus size={16} />
-          <span>Prescribe Regimen</span>
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button
+            onClick={() => setShowMarmaMap(!showMarmaMap)}
+            className={`btn ${showMarmaMap ? "btn-primary" : "btn-secondary"}`}
+          >
+            <Map size={16} /> {showMarmaMap ? "Hide Marma Map" : "Marma & Dosha Map"}
+          </button>
+          <button onClick={() => setShowModal(true)} className="btn btn-primary">
+            <Plus size={16} />
+            <span>Prescribe Regimen</span>
+          </button>
+        </div>
       </div>
+
+      {showMarmaMap && (
+        <div style={{ marginBottom: "24px" }}>
+          <MarmaBodyMap />
+        </div>
+      )}
 
       {message.text && (
         <div
@@ -191,6 +211,19 @@ const VaidyaTreatments = () => {
                         : p.username}
                     </option>
                   ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Panchakarma Protocol Phase</label>
+                <select
+                  value={formData.phase}
+                  onChange={(e) => setFormData({ ...formData, phase: e.target.value })}
+                  className="select-control"
+                >
+                  <option value="PURVAKARMA">Purvakarma (Preparatory: Snehana / Swedana)</option>
+                  <option value="PRADHANAKARMA">Pradhanakarma (Elimination: Vamana / Virechana / Basti / Nasya)</option>
+                  <option value="PASCHATKARMA">Paschatkarma (Restoration & Rasayana)</option>
                 </select>
               </div>
 
@@ -284,9 +317,25 @@ const VaidyaTreatments = () => {
               >
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
-                    <span className={`status-badge ${plan.status?.toLowerCase()}`}>
-                      {plan.status}
-                    </span>
+                    <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                      <span className={`status-badge ${plan.status?.toLowerCase()}`}>
+                        {plan.status}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "0.7rem",
+                          padding: "3px 8px",
+                          borderRadius: "12px",
+                          background: "rgba(212, 175, 55, 0.15)",
+                          color: "var(--gold-light)",
+                          border: "1px solid rgba(212, 175, 55, 0.3)",
+                          fontWeight: 600,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {plan.phase || "PRADHANAKARMA"}
+                      </span>
+                    </div>
 
                     <span style={{ fontSize: "0.8rem", color: "var(--gold-light)", fontWeight: 600 }}>
                       {completed} / {total} Completed

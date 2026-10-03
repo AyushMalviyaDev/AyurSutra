@@ -12,10 +12,15 @@ import {
   User,
   Heart,
   Droplets,
+  FileText,
+  Map,
 } from "lucide-react";
 
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import PatientHeader from "../../components/patient/PatientHeader";
+import PanchakarmaProtocolTimeline from "../../components/clinical/PanchakarmaProtocolTimeline";
+import MarmaBodyMap from "../../components/clinical/MarmaBodyMap";
+import AyurvedicEHRReport from "../../components/clinical/AyurvedicEHRReport";
 import { getMySessions } from "../../services/patientService";
 import { getPatientTherapies } from "../../services/therapyService";
 
@@ -25,6 +30,8 @@ const PatientDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [waterCount, setWaterCount] = useState(4);
   const [assessmentMood, setAssessmentMood] = useState(null);
+  const [showEHR, setShowEHR] = useState(false);
+  const [showMarmaMap, setShowMarmaMap] = useState(false);
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -67,6 +74,34 @@ const PatientDashboard = () => {
   return (
     <DashboardLayout>
       <PatientHeader />
+
+      {/* Clinical Operations & Discovery Bar */}
+      <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap", gap: "10px", marginBottom: "20px" }}>
+        <button
+          onClick={() => setShowMarmaMap(!showMarmaMap)}
+          className={`btn btn-sm ${showMarmaMap ? "btn-primary" : "btn-secondary"}`}
+        >
+          <Map size={15} /> {showMarmaMap ? "Hide Body Map" : "Explore Marma & Dosha Map"}
+        </button>
+        <button
+          onClick={() => setShowEHR(true)}
+          className="btn btn-secondary btn-sm"
+        >
+          <FileText size={15} /> View Ayurvedic EHR Report
+        </button>
+      </div>
+
+      {/* Marma Anatomical Map */}
+      {showMarmaMap && (
+        <div style={{ marginBottom: "24px" }}>
+          <MarmaBodyMap />
+        </div>
+      )}
+
+      {/* 3-Phase Panchakarma Protocol & Samsarjana Diet Engine */}
+      <div style={{ marginBottom: "24px" }}>
+        <PanchakarmaProtocolTimeline therapies={therapies} />
+      </div>
 
       {/* Spotlight Next Appointment Banner */}
       {nextSession && (
@@ -468,6 +503,8 @@ const PatientDashboard = () => {
           </div>
         </div>
       </div>
+
+      <AyurvedicEHRReport isOpen={showEHR} onClose={() => setShowEHR(false)} />
     </DashboardLayout>
   );
 };

@@ -62,10 +62,13 @@ const TherapistDashboard = () => {
         </div>
 
         <div style={{ display: "flex", gap: "10px" }}>
+          <Link to="/therapist/suite" className="btn btn-primary">
+            <DoorOpen size={16} /> Suite Console
+          </Link>
           <Link to="/therapist/schedule" className="btn btn-secondary">
             <CalendarCheck size={16} /> Today's Schedule
           </Link>
-          <Link to="/therapist/progress" className="btn btn-primary">
+          <Link to="/therapist/progress" className="btn btn-secondary">
             <Plus size={16} /> Log Progress
           </Link>
         </div>

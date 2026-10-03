@@ -190,6 +190,10 @@ const TherapistSchedule = () => {
                   </button>
                 )}
 
+                <Link to={`/therapist/suite?sessionId=${s.id}`} className="btn btn-primary btn-sm">
+                  <DoorOpen size={14} /> In-Suite Console
+                </Link>
+
                 <Link to="/therapist/progress" className="btn btn-secondary btn-sm">
                   Log Progress
                 </Link>

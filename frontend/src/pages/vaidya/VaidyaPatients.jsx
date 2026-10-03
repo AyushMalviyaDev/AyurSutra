@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Users, Sparkles, Mail, User, Plus } from "lucide-react";
+import { Users, Sparkles, Mail, User, Plus, FileText } from "lucide-react";
 import DashboardLayout from "../../components/layout/DashboardLayout";
+import AyurvedicEHRReport from "../../components/clinical/AyurvedicEHRReport";
 import { getUsers } from "../../services/authService";
 import { getPatientTherapies } from "../../services/therapyService";
 
@@ -9,6 +10,7 @@ const VaidyaPatients = () => {
   const [patients, setPatients] = useState([]);
   const [therapies, setTherapies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedEHRUser, setSelectedEHRUser] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -177,15 +179,35 @@ const VaidyaPatients = () => {
                     Patient #{p.id}
                   </span>
 
-                  <Link to="/vaidya/treatments" className="btn btn-secondary btn-sm">
-                    <Sparkles size={14} /> Prescribe
-                  </Link>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedEHRUser(p)}
+                      className="btn btn-secondary btn-sm"
+                    >
+                      <FileText size={14} /> EHR Summary
+                    </button>
+                    <Link to="/vaidya/treatments" className="btn btn-primary btn-sm">
+                      <Sparkles size={14} /> Prescribe
+                    </Link>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
       )}
+
+      <AyurvedicEHRReport
+        isOpen={!!selectedEHRUser}
+        onClose={() => setSelectedEHRUser(null)}
+        patientId={selectedEHRUser?.id}
+        patientName={
+          selectedEHRUser?.first_name
+            ? `${selectedEHRUser.first_name} ${selectedEHRUser.last_name}`
+            : selectedEHRUser?.username
+        }
+      />
     </DashboardLayout>
   );
 };
